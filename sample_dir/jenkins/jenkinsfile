@@ -1,0 +1,64 @@
+pipeline {
+    agent any
+
+    environment {
+        // Define environment variables if needed
+        MAVEN_HOME = "/usr/local/apache-maven-3.8.1"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                // Checkout the code from GitHub repository
+                git branch: 'master', url: 'https://github.com/your-username/sample-java-app.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    // Build the Java project using Maven
+                    sh "'${MAVEN_HOME}/bin/mvn' clean install"
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                script {
+                    // Run unit tests
+                    sh "'${MAVEN_HOME}/bin/mvn' test"
+                }
+            }
+        }
+
+        stage('Package') {
+            steps {
+                script {
+                    // Package the application into a JAR
+                    sh "'${MAVEN_HOME}/bin/mvn' package"
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying to staging environment...'
+                // Add your deployment logic here, e.g., pushing to a staging server.
+            }
+        }
+    }
+
+    post {
+        always {
+            echo 'Cleaning up...'
+            cleanWs() // Clean the workspace after the build
+        }
+        success {
+            echo 'Build succeeded!'
+        }
+        failure {
+            echo 'Build failed!'
+        }
+    }
+}
